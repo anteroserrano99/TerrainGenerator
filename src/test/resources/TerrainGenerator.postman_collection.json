@@ -1,0 +1,28 @@
+{
+	"info": {
+		"_postman_id": "d7a3aea2-ed84-4931-a5a5-9141b4c7f95d",
+		"name": "TerrainGenerator",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "PruebaPerlinNoise",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/antero",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"antero"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
