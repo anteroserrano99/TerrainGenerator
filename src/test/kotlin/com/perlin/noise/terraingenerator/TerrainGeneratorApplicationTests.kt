@@ -8,6 +8,7 @@ class TerrainGeneratorApplicationTests {
 
 	@Test
 	fun contextLoads() {
+		print("a")
 	}
 
 }
