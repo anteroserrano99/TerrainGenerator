@@ -14,15 +14,16 @@ class DiamondSquareAlgorithmTest {
     val logger: Logger = LoggerFactory.getLogger(DiamondSquareAlgorithmTest::class.java)
     var RANDOM_MODIFIER = 1F
 
-    val X_MAX = 10
-    val Y_MAX = 10
+    val X_MAX = 16
+    val Y_MAX = 16
     var RANDOM_SMOTHER = 0.01F
     var grid: Array<IntArray> = Array(X_MAX + 1) { IntArray(Y_MAX + 1 ) { -1 } };
 
     @Test
     fun diamonSquareTest() {
 
-        //TODO ARRAY WITHIN AN ARRAY
+        //TODO EL CASO QUE PRODUCE FALLO ES CUANDO YA ESTAN TODOS LOS VALORES DE UNA ESQUINA EN DIAMANTE DETERMINADOS, COMO SEGUIR A LA SIGUIENTE
+        //PODRIA HACER UNA COMPROBACION DE TODOS LOS VALORES SI EXISTEN
         var suma = 0f;
         var minimo = 255f;
         var maximo = 0f;
@@ -33,17 +34,17 @@ class DiamondSquareAlgorithmTest {
         grid[0][Y_MAX] = generateRandomValue(RANDOM_MODIFIER)
         grid[X_MAX][Y_MAX] = generateRandomValue(RANDOM_MODIFIER)
         //punto central para la prueba con el diamond step
-        grid[X_MAX/2][Y_MAX/2] = generateRandomValue(RANDOM_MODIFIER)
-
+//        grid[X_MAX/2][Y_MAX/2] = generateRandomValue(RANDOM_MODIFIER)
+        writeToFile("START")
 
         var corner00 = grid[0][0]
         var cornerX0 = grid[X_MAX][0]
         var corner0Y = grid[0][Y_MAX]
         var cornerXY = grid[X_MAX][Y_MAX]
-
-        diamondStep(0, 0, X_MAX, Y_MAX)
-        writeToFile()
-
+        while (grid[1][0] == -1) {
+            diamondStep(0, 0, X_MAX, Y_MAX)
+            logger.info("BUCLE")
+        }
         logger.info("\nC00 $corner00 \n CX0 $cornerX0 \n C0Y $corner0Y \n CXY $cornerXY")
 
 
@@ -77,9 +78,6 @@ class DiamondSquareAlgorithmTest {
         return (Random.nextFloat() * (randomNumber + modifier)).toInt()
     }
 
-//CORNER MAP
-//c1  c2
-//c3  c4
 
     fun diamondStep(minX: Int, minY: Int, maxX: Int, maxY: Int) {
         //TODO INTRODUCIR EL PASO DEL DIAMANTE DE FORMA RECURSIVA UNA VEZ FORMADA TODOS LOS CUADRADOS POSIBLES DETERMINAR TODOS LOS PUNTOS CENTRALES PARA CADA CUADRARDO
@@ -91,43 +89,45 @@ class DiamondSquareAlgorithmTest {
         var centery = (maxY + minY)/2
         var center = grid[centerx][centery]
 
-
+        //TODO LA CONDICION DE SALIDA ESTA JODIDA YA QUE SE QUEDA EN BUCLE INFINITO UNA VEZ LLEGADO AL 3 BUCLE
         if (center == -1) {
             //ASIGNAMOS VALOR AL CENTRO
 
             grid[centerx][centery] = ((c1 + c2 + c3 + c4) / 4) + generateRandomValue(RANDOM_SMOTHER)
+            writeToFile("DIAMOND")
+            //TODO REVISAR DISTANCIA DE NODO
+            squareStep(centerx,centery,-(minX-centerx))
             //LLAMAMOS AQUI AL SQUARE STEP
             return
         }
 
+        diamondStep(minX,minY,maxX/2+minX/2,maxY/2+minY/2)
 
+        diamondStep(maxX/2+minX/2,minY,maxX,maxY/2+minY/2)
 
-        //upper left square
-        diamondStep(minX,minY,maxX/2,maxY/2)
+        diamondStep(minX,maxY/2+minY/2,maxX/2+minX/2,maxY)
 
-        //upper right square
-        diamondStep(maxX/2,minY,maxX,maxY/2)
-
-        //lower left square
-        diamondStep(minX,maxY/2,maxX/2,maxY)
-
-        //lower right square
-        diamondStep(maxX/2,maxY/2,maxX,maxY)
-
-        return
-
+        diamondStep(maxX/2+minX/2,maxY/2+minY/2,maxX,maxY)
     }
 
 
-    fun squareStep() {
-    //TODO COGEMOS EL PUNTO CENTRAL PRIMERO, Y DE ESO DETERMINAMOS LOS 4 PUNTOS QUE PUEDEN TENER O NO VALOR MAXX/2 MINY, MINX MAXY/2, MAXX/2 MAXY, MAXX MAXY/2
-    //TODO TENER EN CUENTA QUE HAY QUE COMPROBAR SI EXTIENDE LA LA LONGITUD O ALTURA DEL ARRAY YA QUE EN ESE CASO SE OBVIA
+    fun squareStep(centerX: Int, centerY: Int, nodeDistance: Int) {
+        //    C1
+        // C2 C0 C3
+        //    C4
 
-    //TODO SI TIENEN VALOR PASAMOS A LAS DIAGONALES DE CADA SUBCUADRADO
+        //c1
+        assignValueToNode(centerX,centerY-nodeDistance,nodeDistance)
+        //c2
+        assignValueToNode(centerX-nodeDistance,centerY,nodeDistance)
+        //c3
+        assignValueToNode(centerX+nodeDistance,centerY,nodeDistance)
+        //c4
+        assignValueToNode(centerX,centerY+nodeDistance,nodeDistance)
 
     }
 
-    fun writeToFile() {
+    fun writeToFile(message:String) {
         var filename = "src/test/resources/FileDebug/array.txt"
 
 
@@ -151,10 +151,33 @@ class DiamondSquareAlgorithmTest {
 
 
         }
-
+        logger.info(message)
 
     }
 
+
+    fun assignValueToNode(centerX: Int, centerY: Int, nodeDistance: Int){
+        if ((centerX < 0 || centerX >= grid.size) || (centerY < 0 || centerY >= grid.size)) return
+
+
+
+        var adjacentNodes = 4;
+        var c1 = 0
+        var c2 = 0
+        var c3 = 0
+        var c4 = 0
+
+
+        if ((centerX >= 0 && centerX < grid.size) && (centerY-nodeDistance >= 0 && centerY-nodeDistance < grid.size)) c1 = grid[centerX][centerY-nodeDistance] else adjacentNodes--
+        if ((centerX-nodeDistance >= 0 && centerX-nodeDistance < grid.size) && (centerY >= 0 && centerY <= grid.size)) c2 = grid[centerX-nodeDistance][centerY] else adjacentNodes--
+        if ((centerX+nodeDistance >= 0 && centerX+nodeDistance < grid.size) && (centerY >= 0 && centerY <= grid.size)) c3 = grid[centerX+nodeDistance][centerY] else adjacentNodes--
+        if ((centerX >= 0 && centerX < grid.size) && (centerY+nodeDistance >= 0 && centerY+nodeDistance < grid.size)) c4 = grid[centerX][centerY+nodeDistance] else adjacentNodes--
+
+        grid[centerX][centerY] = ((c1 + c2 + c3 + c4) / adjacentNodes) + generateRandomValue(RANDOM_SMOTHER)
+        writeToFile("SQUARE")
+
+
+    }
 
 
 }
