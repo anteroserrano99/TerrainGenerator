@@ -18,8 +18,8 @@ class DiamondSquareAlgorithmTest {
     val logger: Logger = LoggerFactory.getLogger(DiamondSquareAlgorithmTest::class.java)
 
 
-    val X_MAX = 1024
-    val Y_MAX = 1024
+    val X_MAX = 512
+    val Y_MAX = 512
     var RANDOM_SMOTHER = 0.0
     var grid: Array<DoubleArray> = Array(X_MAX + 1) { DoubleArray(Y_MAX + 1 ) { -1.0 } };
 
@@ -49,8 +49,8 @@ class DiamondSquareAlgorithmTest {
             diamondStep(0, 0, X_MAX, Y_MAX)
             logger.info("BUCLE")
         }
-        writeToFile("WRITE")
         createImage()
+        writeToFile("WRITE")
         logger.info("\nC00 $corner00 \n CX0 $cornerX0 \n C0Y $corner0Y \n CXY $cornerXY")
 
 
@@ -74,16 +74,12 @@ class DiamondSquareAlgorithmTest {
 
     fun generateRandomValue(randomModifier: Double): Double {
 
-        var sign = Random.nextBoolean();
-
-        var modifier = 255f * randomModifier;
-        if (sign) modifier *= -1
-
-        var randomNumber = 127f;
         var value = Random.nextDouble()
 //        logger.info("$value")
-        if (value < 0.1) value += 0.15
-        if (value > 0.9) value -= 0.15
+//        if ((value < 0.05) ) value += 0.05
+//        if ((value < 0.1) ) value += 0.1
+        if ((value > 0.75) && Random.nextBoolean()) value += 0.15
+//        if ((value > 1) ) value = 1.0
 
         return value
     }
@@ -140,6 +136,10 @@ class DiamondSquareAlgorithmTest {
     }
 
     fun writeToFile(message:String) {
+        //LINEA HORIZONTAL ES LA LINEA VERTICAL DE ARRIBA EN EL FICHERO
+
+
+
         var filename = "src/test/resources/FileDebug/array.txt"
 
 
@@ -174,7 +174,7 @@ class DiamondSquareAlgorithmTest {
 
 
 
-        var adjacentNodes = 4;
+        var adjacentNodes = 4
         var c1 = 0.0
         var c2 = 0.0
         var c3 = 0.0
@@ -195,17 +195,22 @@ class DiamondSquareAlgorithmTest {
     fun createImage(){
 
         var filename = "src/test/resources/FileDebug/noise.png"
+        // 0 ES NEGRO
+        // 1 ES BLANCO
+        var image = BufferedImage(X_MAX+1, Y_MAX+1, BufferedImage.TYPE_INT_RGB)
+        for(x in 0..X_MAX){
+            for (y in 0 ..X_MAX){
 
-        var image = BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB)
-        for(x in 0 until X_MAX){
-            for (y in 0 until X_MAX){
-                val value = grid[x][y]
-                var rbg = 0x010101 *  ((value + 1) * 127.5).toInt()
-                image.setRGB(x,y, rbg)
+                var value = grid[x][y]
+//                logger.info("$value")
+//                if (value > 2.0) value = 2.0
+                var rbg = 0x010101 *  ((value + 1) *127).toInt()
+                grid[x][y] = ((value + 1) *127.5).toInt().toDouble()
+                image.setRGB(y,x, rbg)
             }
         }
         var at: AffineTransform = AffineTransform()
-        at.scale(4.0,4.0)
+        at.scale(1.0,1.0)
         var scaleOp: AffineTransformOp = AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR)
         var afterImage = BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB)
         afterImage = scaleOp.filter(image,afterImage)
