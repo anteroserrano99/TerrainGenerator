@@ -9,6 +9,7 @@ import java.awt.image.AffineTransformOp
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
+import kotlin.math.absoluteValue
 import kotlin.random.Random
 
 @SpringBootTest
@@ -17,42 +18,59 @@ class DiamondSquareAlgorithmTest {
 
     val logger: Logger = LoggerFactory.getLogger(DiamondSquareAlgorithmTest::class.java)
 
+    val X_MAX = 1024
+    val Y_MAX = 1024
+    var SEED = 128L
 
-    val X_MAX = 8
-    val Y_MAX = 8
-    
-    var RANDOM_SMOTHER = 0.0
+    //SEED 128L, GENERATERANDOMVALUE
+
+
+    var RANDOM_MODIFIER = 0.0
+    var RANDOM_SMOTHER = 0.00000001
     var grid: Array<DoubleArray> = Array(X_MAX + 1) { DoubleArray(Y_MAX + 1 ) { -1.0 } };
 
     @Test
     fun diamonSquareTest() {
 
-        grid[0][0] = generateRandomValue(RANDOM_SMOTHER)
-        grid[X_MAX][0] = generateRandomValue(RANDOM_SMOTHER)
-        grid[0][Y_MAX] = generateRandomValue(RANDOM_SMOTHER)
-        grid[X_MAX][Y_MAX] = generateRandomValue(RANDOM_SMOTHER)
+
+        grid[0][0] =  -1.0
+        grid[X_MAX][0] = 0.0
+        grid[0][Y_MAX] = 1.0
+        grid[X_MAX][Y_MAX] = -1.0
+
+        logger.info("Punto inicil 00 : "+grid[0][0])
+        logger.info("Punto inicil X0 : "+grid[X_MAX][0])
+        logger.info("Punto inicil 0X : "+grid[0][X_MAX])
+        logger.info("Punto inicil XX : "+grid[X_MAX][X_MAX])
 
         while (grid[1][0] == -1.0) {
             diamondStep(0, 0, X_MAX, Y_MAX)
-            logger.info("BUCLE")
         }
+
 
         createImage("noise")
         writeToFile("noise")
 
-        smoothTerrain()
-
+        smoothTerrain(100)
         createImage("smooth")
         writeToFile("smooth")
 
-//        writeToFile("WRITE")
+//
+//        smoothTerrain(250)
+//        createImage("smooth")
+//        writeToFile("smooth")
+//
+//        smoothTerrain(500)
+//        createImage("verysmooth")
+//        writeToFile("verysmooth")
     }
 
 
     fun generateRandomValue(randomModifier: Double): Double {
-        var value = Random.nextDouble()
+        var value = Random(SEED).nextDouble()
 
-        if (Random.nextBoolean()) value = -value
+        if (Random(SEED).nextBoolean()) value = -value
+        if (SEED % 2 == 0L) SEED++ else SEED +=3
 
         return value
     }
@@ -68,7 +86,7 @@ class DiamondSquareAlgorithmTest {
 
         if (center == -1.0) {
 
-            grid[centerx][centery] = ((c1 + c2 + c3 + c4 + generateRandomValue(RANDOM_SMOTHER)) / 4)
+            grid[centerx][centery] = ((c1 + c2 + c3 + c4 + generateRandomValue(RANDOM_MODIFIER)) / 4)
 
             squareStep(centerx,centery,-(minX-centerx))
             return
@@ -108,66 +126,61 @@ class DiamondSquareAlgorithmTest {
         if ((centerX+nodeDistance >= 0 && centerX+nodeDistance < grid.size) && (centerY >= 0 && centerY <= grid.size)) c3 = grid[centerX+nodeDistance][centerY] else adjacentNodes--
         if ((centerX >= 0 && centerX < grid.size) && (centerY+nodeDistance >= 0 && centerY+nodeDistance < grid.size)) c4 = grid[centerX][centerY+nodeDistance] else adjacentNodes--
 
-        grid[centerX][centerY] = ((c1 + c2 + c3 + c4 + generateRandomValue(RANDOM_SMOTHER))  / adjacentNodes)
+        grid[centerX][centerY] = ((c1 + c2 + c3 + c4 + generateRandomValue(RANDOM_MODIFIER))  / adjacentNodes)
     }
 
-    fun smoothTerrain(){
+    fun smoothTerrain(iterations:Int){
+        for (i in 0..iterations) {
+            for (x in 0..X_MAX) {
+                for (y in 0..Y_MAX) {
+                    // c1 c2 c3
+                    // c4 c0 c5
+                    // c6 c7 c8
+                    var adjacentNodes = 8
 
-        for (x in 0..X_MAX){
-            for (y in 0..Y_MAX)
-            {
-                // c1 c2 c3
-                // c4 c0 c5
-                // c6 c7 c8
-                var adjacentNodes = 8
+                    var c0 = grid[x][y]
+                    var c1 = 0.0
+                    var c2 = 0.0
+                    var c3 = 0.0
+                    var c4 = 0.0
+                    var c5 = 0.0
+                    var c6 = 0.0
+                    var c7 = 0.0
+                    var c8 = 0.0
 
-                var c0 = grid[x][y]
-                var c1 = 0.0
-                var c2 = 0.0
-                var c3 = 0.0
-                var c4 = 0.0
-                var c5 = 0.0
-                var c6 = 0.0
-                var c7 = 0.0
-                var c8 = 0.0
+                    if (x == 0 || y == 0 || x == X_MAX || y == X_MAX) {
 
-                if (x ==0 || y == 0 || x == X_MAX || y == X_MAX) {
+                        //c1
+                        if (x - 1 < 0 || y - 1 < 0) adjacentNodes-- else c1 = grid[x - 1][y - 1]
+                        //c2
+                        if (y - 1 < 0) adjacentNodes-- else c2 = grid[x][y - 1]
+                        //c3
+                        if (x + 1 > X_MAX || y - 1 < 0) adjacentNodes-- else c3 = grid[x + 1][y - 1]
+                        //C4
+                        if (x - 1 < 0) adjacentNodes-- else c4 = grid[x - 1][y]
+                        //C5
+                        if (x + 1 > X_MAX) adjacentNodes-- else c5 = grid[x + 1][y]
+                        //C6
+                        if (x - 1 < 0 || y + 1 > X_MAX) adjacentNodes-- else c6 = grid[x - 1][y + 1]
+                        //C7
+                        if (y + 1 > X_MAX) adjacentNodes-- else c7 = grid[x][y + 1]
+                        //C8
+                        if (x + 1 > X_MAX || y + 1 > X_MAX) adjacentNodes-- else c8 = grid[x + 1][y + 1]
+                    } else {
+                        c1 = grid[x - 1][y - 1]
+                        c2 = grid[x][y - 1]
+                        c3 = grid[x + 1][y - 1]
+                        c4 = grid[x - 1][y]
+                        c5 = grid[x + 1][y]
+                        c6 = grid[x - 1][y + 1]
+                        c7 = grid[x][y + 1]
+                        c8 = grid[x + 1][y + 1]
+                    }
+                    val value = (c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8) / adjacentNodes
 
-                    //c1
-                    if (x - 1 < 0 || y - 1 < 0) adjacentNodes-- else c1 = grid[x - 1][y - 1]
-                    //c2
-                    if (y - 1 < 0) adjacentNodes-- else c2 = grid[x][y - 1]
-                    //c3
-                    if (x + 1 > X_MAX || y - 1 < 0) adjacentNodes-- else c3 = grid[x + 1][y - 1]
-                    //C4
-                    if (x - 1 < 0) adjacentNodes-- else c4 = grid[x - 1][y]
-                    //C5
-                    if (x + 1 > X_MAX) adjacentNodes-- else c5 = grid[x + 1][y]
-                    //C6
-                    if (x - 1 < 0 || y + 1 > X_MAX) adjacentNodes-- else c6 = grid[x - 1][y + 1]
-                    //C7
-                    if (y + 1 > X_MAX) adjacentNodes-- else c7 = grid[x][y + 1]
-                    //C8
-                    if (x + 1 > X_MAX || y + 1 > X_MAX) adjacentNodes-- else c8 = grid[x + 1][y + 1]
-                }else{
-                    c1 = grid[x-1][y-1]
-                    c2 = grid[x][y-1]
-                    c3 = grid[x+1][y-1]
-                    c4 = grid[x-1][y]
-                    c5 = grid[x+1][y]
-                    c6 = grid[x-1][y+1]
-                    c7 = grid[x][y+1]
-                    c8 = grid[x+1][y+1]
-
-
-
-
+                    grid[x][y] =  if (value < -1.0) -0.99 else value
                 }
-
-                grid[x][y]= (c1 + c2 + c3 +c4 +c5 +c6 +c7 +c8 +c0) / adjacentNodes
-
             }
-
         }
 
 
@@ -209,8 +222,8 @@ class DiamondSquareAlgorithmTest {
                 if (value <= 0) value = 0 + Random.nextInt(35)
 
                 var rbg = 0x010101 *  value
+                if ( name == "notverysmooth")grid[x][y] = value.toDouble()
 
-                grid[x][y] = value.toDouble()
                 image.setRGB(y,x, rbg)
             }
         }
