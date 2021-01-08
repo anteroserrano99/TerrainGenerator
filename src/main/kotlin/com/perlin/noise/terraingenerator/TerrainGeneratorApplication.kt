@@ -1,4 +1,4 @@
-package com.perlin.noise.terraingenerator
+package com.terraingenerator
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
