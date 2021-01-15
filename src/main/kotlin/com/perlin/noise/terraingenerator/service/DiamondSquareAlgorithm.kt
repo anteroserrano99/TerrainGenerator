@@ -1,7 +1,11 @@
-package com.terraingenerator.service
+package com.perlin.noise.terraingenerator.service
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.core.io.ClassPathResource
+import org.springframework.core.io.DefaultResourceLoader
+import org.springframework.core.io.PathResource
+import org.springframework.core.io.Resource
 import java.awt.geom.AffineTransform
 import java.awt.image.AffineTransformOp
 import java.awt.image.BufferedImage
@@ -187,9 +191,10 @@ class DiamondSquareAlgorithm {
     }
 
     fun writeToFile(name:String) {
-        var filename = "src/test/resources/FileDebug/$name.txt"
 
+        var filename = DiamondSquareAlgorithm::class.java.getResource("/TempFiles/$name.txt").file
         var file = File(filename)
+
         if (file.exists()) file.delete()
 
         file = File(filename)
@@ -212,7 +217,11 @@ class DiamondSquareAlgorithm {
 
     fun createImage(name:String){
 
-        var filename = "src/test/resources/FileDebug/$name.png"
+
+        var filename = DiamondSquareAlgorithm::class.java.getResource("/TempFiles/$name.png").file
+
+        var file = File(filename)
+
         // 0 ES NEGRO
         // 1 ES BLANCO
         var image = BufferedImage(MAX_SIZE + 1, MAX_SIZE + 1, BufferedImage.TYPE_INT_RGB)
@@ -231,7 +240,7 @@ class DiamondSquareAlgorithm {
         var afterImage = BufferedImage(MAX_SIZE, MAX_SIZE, BufferedImage.TYPE_INT_RGB)
         afterImage = scaleOp.filter(image,afterImage)
 
-        ImageIO.write(afterImage,"png", File(filename))
+        ImageIO.write(afterImage,"png", file )
     }
 
 

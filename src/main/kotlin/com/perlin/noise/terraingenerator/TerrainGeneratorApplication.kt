@@ -1,4 +1,4 @@
-package com.terraingenerator
+package com.perlin.noise.terraingenerator
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -7,5 +7,6 @@ import org.springframework.boot.runApplication
 class TerrainGeneratorApplication
 
 fun main(args: Array<String>) {
+	System.setProperty("spring.devtools.restart.enabled", "false");
 	runApplication<TerrainGeneratorApplication>(*args)
 }

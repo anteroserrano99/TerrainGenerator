@@ -8,12 +8,21 @@ plugins {
 }
 
 group = "com.perlin.noise"
+
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 configurations {
 	compileOnly {
 		extendsFrom(configurations.annotationProcessor.get())
+	}
+}
+
+sourceSets {
+	main{
+		resources{
+			srcDir("src/resources")
+		}
 	}
 }
 
