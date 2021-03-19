@@ -39,18 +39,11 @@ class DiamondSquareAlgorithm {
 
     fun  diamonSquareTest() {
 
-//        logger.info("$SEED")
 
         grid[0][0] = generateRandomValue(RANDOM_MODIFIER).absoluteValue
         grid[MAX_SIZE][0] = generateRandomValue(RANDOM_MODIFIER).absoluteValue
         grid[0][MAX_SIZE] = generateRandomValue(RANDOM_MODIFIER).absoluteValue
         grid[MAX_SIZE][MAX_SIZE] = generateRandomValue(RANDOM_MODIFIER).absoluteValue
-
-        logger.info("C1 : ${grid[0][0]}")
-        logger.info("C2 : ${grid[MAX_SIZE][0]}")
-        logger.info("C3 : ${grid[0][MAX_SIZE]}")
-        logger.info("C4 : ${grid[MAX_SIZE][MAX_SIZE]}")
-
 
 
         while (grid[1][0] == -1.0) {
@@ -59,8 +52,6 @@ class DiamondSquareAlgorithm {
 
         val smootherIterations = (Math.sqrt(MAX_SIZE.toDouble())+1).toInt() * 3
 
-//        createImage("noise")
-//        writeToFile("noise")
 
         smoothTerrain(smootherIterations)
 
@@ -198,6 +189,7 @@ class DiamondSquareAlgorithm {
         if (file.exists()) file.delete()
 
         file = File(filename)
+
         file.createNewFile()
 
         file.printWriter().use { out ->
@@ -249,8 +241,8 @@ class DiamondSquareAlgorithm {
             for (y in 0..MAX_SIZE) {
 
                 var value = ((grid[x][y] + 1) * 127.5).toInt()
-                if (value >= 250) value = 220 + generateRandomValue(RANDOM_MODIFIER).absoluteValue.toInt() * 30
-                if (value <= 5) value = 1 + generateRandomValue(RANDOM_MODIFIER).absoluteValue.toInt() * 34
+//                if (value >= 250) value = 220 + generateRandomValue(RANDOM_MODIFIER).absoluteValue.toInt() * 30
+//                if (value <= 5) value = 1 + generateRandomValue(RANDOM_MODIFIER).absoluteValue.toInt() * 34
                 grid[x][y] = value.toDouble()
             }
         }

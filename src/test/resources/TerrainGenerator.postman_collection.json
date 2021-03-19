@@ -6,23 +6,60 @@
 	},
 	"item": [
 		{
-			"name": "PruebaPerlinNoise",
+			"name": "DiamondSquareImage",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/antero",
+					"raw": "localhost:8080/api/v1/terrainGenerator/diamondSquare/image?size=1024",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"antero"
+						"api",
+						"v1",
+						"terrainGenerator",
+						"diamondSquare",
+						"image"
+					],
+					"query": [
+						{
+							"key": "size",
+							"value": "1024"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DiamondSquareText",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/v1/terrainGenerator/diamondSquare/array?size=16",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"terrainGenerator",
+						"diamondSquare",
+						"array"
+					],
+					"query": [
+						{
+							"key": "size",
+							"value": "16"
+						}
 					]
 				}
 			},
 			"response": []
 		}
-	],
-	"protocolProfileBehavior": {}
+	]
 }
